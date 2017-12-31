@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="100">
+
+    <TextView
+        android:id="@+id/textview_allpost_posttitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="75"
+        android:text="POST_TITLE"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+
+    <TextView
+        android:id="@+id/textview_allpost_postauthor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="POST_AUTHOR"
+        android:layout_weight="25"/>
+
+</LinearLayout>
