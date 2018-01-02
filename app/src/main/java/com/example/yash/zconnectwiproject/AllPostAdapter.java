@@ -15,14 +15,12 @@ import java.util.ArrayList;
 
 public class AllPostAdapter extends RecyclerView.Adapter<AllPostAdapter.CustomViewHolder>{
 
-    ArrayList<String> titleList;
-    ArrayList<String> authorList;
+    ArrayList<Post> posts;
     Context context;
 
-    public AllPostAdapter(Context context, ArrayList<String> titleList, ArrayList<String> authorList) {
+    public AllPostAdapter(Context context, ArrayList<Post> posts) {
         this.context = context;
-        this.authorList = authorList;
-        this.titleList = titleList;
+        this.posts = new ArrayList<Post>(posts);
     }
 
     @Override
@@ -34,9 +32,9 @@ public class AllPostAdapter extends RecyclerView.Adapter<AllPostAdapter.CustomVi
 
     @Override
     public void onBindViewHolder(CustomViewHolder holder, int position) {
-        String author = "-by " + authorList.get(position);
+        String author = "-by " + posts.get(position).getPostAuthor();
         holder.author.setText(author);
-        holder.title.setText(titleList.get(position));
+        holder.title.setText(posts.get(position).getPostContent());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -47,7 +45,7 @@ public class AllPostAdapter extends RecyclerView.Adapter<AllPostAdapter.CustomVi
 
     @Override
     public int getItemCount() {
-        return titleList.size();
+        return posts.size();
     }
 
     public class CustomViewHolder extends RecyclerView.ViewHolder {

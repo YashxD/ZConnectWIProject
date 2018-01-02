@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "904267168048",
+    "firebase_url": "https://zconnect-wi-project.firebaseio.com",
+    "project_id": "zconnect-wi-project",
+    "storage_bucket": "zconnect-wi-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:904267168048:android:611ed78b46e9f1b3",
+        "android_client_info": {
+          "package_name": "com.example.yash.zconnectwiproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "904267168048-sq1arjk47le4fb4pgmt4hmvgthp982h4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8LymrTPTUPbBhLxtnD3biNFN3_bWbr-w"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

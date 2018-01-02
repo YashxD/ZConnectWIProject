@@ -3,4 +3,7 @@
     <string name="title_newPost">New</string>
     <string name="title_allPosts">Feed</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_activity_view_post">ViewPost</string>
+    <string name="report">Report</string>
+
 </resources>
