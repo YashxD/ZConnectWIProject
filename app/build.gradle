@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    useLibrary 'org.apache.http.legacy'
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.example.yash.zconnectwiproject"
@@ -31,5 +32,10 @@ dependencies {
     compile "com.android.support:recyclerview-v7:26.1.0"
     compile 'com.google.firebase:firebase-core:11.8.0'
     compile 'com.google.firebase:firebase-database:11.8.0'
+    /*//compile 'org.apache.httpcomponents:httpclient:4.3.6'
+    compile 'org.apache.httpcomponents:httpasyncclient:4.0.2'
+    compile 'org.apache.httpcomponents:httpmime:4.3.6'
+    //compile 'org.json:json:20140107'
+    compile 'com.mashape.unirest:unirest-java:1.4.9'*/
 }
 apply plugin: 'com.google.gms.google-services'

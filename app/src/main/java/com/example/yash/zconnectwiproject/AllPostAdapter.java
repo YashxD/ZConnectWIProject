@@ -1,6 +1,7 @@
 package com.example.yash.zconnectwiproject;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,14 +32,18 @@ public class AllPostAdapter extends RecyclerView.Adapter<AllPostAdapter.CustomVi
     }
 
     @Override
-    public void onBindViewHolder(CustomViewHolder holder, int position) {
+    public void onBindViewHolder(CustomViewHolder holder, final int position) {
         String author = "-by " + posts.get(position).getPostAuthor();
         holder.author.setText(author);
         holder.title.setText(posts.get(position).getPostContent());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Add code for launching a new activity for the post to manually block it.
+                Intent launchViewPost = new Intent(context, ViewPost.class);
+                launchViewPost.putExtra("author", posts.get(position).getPostAuthor());
+                launchViewPost.putExtra("content", posts.get(position).getPostContent());
+                launchViewPost.putExtra("position", position);
+                context.startActivity(launchViewPost);
             }
         });
     }
