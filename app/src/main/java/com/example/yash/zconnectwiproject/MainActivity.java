@@ -1,6 +1,8 @@
 package com.example.yash.zconnectwiproject;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,8 +26,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-//import com.mashape.unirest.http.JsonNode;
-//import com.mashape.unirest.http.Unirest;
+import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,24 +39,22 @@ import java.util.Arrays;
 public class MainActivity extends AppCompatActivity {
 
     //Layout Declarations
-    //ScrollView allPostScrollView;
     RecyclerView allPostRecyclerView;
     TextView allPostTitleTextView;
     EditText newPostInputEditText;
+    EditText newPostTitleEditText;
     Button newPostSubmitButton;
     Button newPostCheckButton;
 
-
     //Variable Delarations
     AllPostAdapter allPostAdapter;
-    //ArrayList allPostTitles;
-    //ArrayList<String> allPostAuthors;
     ArrayList<CharSequence> sensorWords;
     LinearLayoutManager allPostLinearLayoutManager;
     View.OnClickListener newPostCheckListener;
     View.OnClickListener newPostSubmitListener;
     Post post;
-    ArrayList<Post> allPosts;
+    public static ArrayList<Post> allPosts;
+    ArrayList<Post> nonReportedPosts;
     String input, readerInput;
     CharSequence temp;
     private DatabaseReference databaseReference;
@@ -65,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
     InputStream inputStream;
     BufferedReader bufferedReader;
     boolean sensorFlag = false;
+    SharedPreferences postsStore;
+    SharedPreferences.Editor postsStoreEditor;
+    boolean initializeFlag = false;
+    String json;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -73,20 +76,22 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_newpost:
-                    //allPostScrollView.setVisibility(View.GONE);
                     allPostRecyclerView.setVisibility(View.GONE);
                     allPostTitleTextView.setVisibility(View.GONE);
                     newPostCheckButton.setVisibility(View.VISIBLE);
                     newPostInputEditText.setVisibility(View.VISIBLE);
                     newPostSubmitButton.setVisibility(View.VISIBLE);
+                    newPostTitleEditText.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_allpost:
+                    refreshPostsList();
                     newPostCheckButton.setVisibility(View.GONE);
                     newPostInputEditText.setVisibility(View.GONE);
                     newPostSubmitButton.setVisibility(View.GONE);
+                    newPostTitleEditText.setVisibility(View.GONE);
                     allPostRecyclerView.setVisibility(View.VISIBLE);
                     allPostTitleTextView.setVisibility(View.VISIBLE);
-                    allPostRecyclerView.setAdapter(new AllPostAdapter(MainActivity.this, allPosts));
+                    allPostRecyclerView.setAdapter(new AllPostAdapter(MainActivity.this, nonReportedPosts));
                     return true;
             }
             return false;
@@ -100,57 +105,27 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseApp.initializeApp(this);
 
-        //allPostScrollView = findViewById(R.id.scrollview_allpost);
         allPostRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_allpost);
         allPostTitleTextView = (TextView) findViewById(R.id.textView_allpost_title);
         newPostCheckButton = (Button) findViewById(R.id.button_newpost_check);
-        newPostInputEditText = (EditText) findViewById(R.id.editext_newpost);
+        newPostInputEditText = (EditText) findViewById(R.id.edittext_newpost_content);
         newPostSubmitButton = (Button) findViewById(R.id.button_newpost_submit);
+        newPostTitleEditText = (EditText) findViewById(R.id.edittext_newpost_title);
         allPostLinearLayoutManager = new LinearLayoutManager(getApplicationContext());
 
-        //allPostTitles = new ArrayList<>(Arrays.asList("Title 1", "Title 2", "Title 3", "Title 4", "Title 5", "Title 6", "Title 7"));
-        //allPostAuthors = new ArrayList<>(Arrays.asList("Person 1", "Person 2", "Person 3", "Person 4", "Person 5", "Person 6", "Person 7"));
         allPosts = new ArrayList<Post>();
+        nonReportedPosts = new ArrayList<Post>();
         post = new Post();
         input = new String("");
-        allPosts.add(post);
         sensorWords = new ArrayList<CharSequence>();
+
 
         assetManager = getApplicationContext().getAssets();
         try {
-            /*inputStream = assetManager.open("SensorWords.txt");
-            inputStream = new InputStream() {
-                @Override
-                public int read() throwost.postAuthor;
-        this.postContent=post.postContent;
-    }
-
-    public Post() {
-        this.postContent = "";
-        this.postAuthor = "";
-    }
-
-    public String getPostContent() {
-        return postContent;
-    }
-
-    public String getPostAuthor() {
-        return postAuthor;
-    }
-
-    public void setPostContent(String postContent) {
-        this.postContent = postContent;
-    }
-
-    public void setPostAuthor(String postAuthor) {
-        this.postAuthor = postAuthor;s IOException {
-
-                }
-            }*/
             bufferedReader = new BufferedReader(new InputStreamReader(getAssets().open("SensorWords.txt")));
             readerInput = bufferedReader.readLine();
 
-            while(readerInput != null) {
+            while (readerInput != null) {
                 temp = readerInput;
                 sensorWords.add(temp);
                 readerInput = bufferedReader.readLine();
@@ -160,46 +135,34 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        refreshPostsList();
         allPostRecyclerView.setLayoutManager(allPostLinearLayoutManager);
-        allPostAdapter = new AllPostAdapter(MainActivity.this, allPosts);
+        allPostAdapter = new AllPostAdapter(MainActivity.this, nonReportedPosts);
         allPostRecyclerView.setAdapter(allPostAdapter);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         databaseReference = FirebaseDatabase.getInstance().getReferenceFromUrl("https://zconnect-wi-project.firebaseio.com/");
-        final GenericTypeIndicator<ArrayList<Post>> t = new GenericTypeIndicator<ArrayList<Post>>() {};
+        final GenericTypeIndicator<ArrayList<Post>> t = new GenericTypeIndicator<ArrayList<Post>>() {
+        };
 
         newPostCheckListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                input = newPostInputEditText.getText().toString();
-                int i;
-                for(i=0;i<sensorWords.size();i++) {
-                    if(input.contains(sensorWords.get(i))) {
-                        sensorFlag = true;
-                        Toast.makeText(MainActivity.this, "The text you have entered contains inappropriate words/phrases", Toast.LENGTH_LONG).show();
-                        break;
-                    }
-                }
-                //Toast.makeText(MainActivity.this, sensorWords.get(9), Toast.LENGTH_SHORT).show();
-                if(i==sensorWords.size()) {
-                    sensorFlag = false;
-                    Toast.makeText(MainActivity.this, "Entered text is clean!", Toast.LENGTH_SHORT).show();
-                }
+                checkIfInappropriateInput();
             }
         };
 
         newPostSubmitListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                input = newPostInputEditText.getText().toString();
-                newPostInputEditText.setText("");
-                post = new Post();
-                post.setPostAuthor("DefaultAuthor");
-                post.setPostContent(input);
-                allPosts.add(post);
-                databaseReference.child("allPosts").setValue(allPosts);
-                post = new Post();
+                checkIfInappropriateInput();
+                if(sensorFlag) {
+                    Toast.makeText(MainActivity.this, "Please enter a non inappropriate text", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    newPost();
+                }
             }
         };
 
@@ -231,7 +194,69 @@ public class MainActivity extends AppCompatActivity {
         databaseReference.addListenerForSingleValueEvent(allPostsInitialListener);
         newPostSubmitButton.setOnClickListener(newPostSubmitListener);
         newPostCheckButton.setOnClickListener(newPostCheckListener);
-        //URLConnection<JsonNode> response = Unirest.post("https://neutrinoapi-bad-word-filter.p.mashape.com/bad-word-filter").header("X-Mashape-Key", "OG2k249FsvmshTDdwSV3NjIV4Ah3p1Crx9BjsnSg8hfSsOZhT7").header("Content-Type", "application/x-www-form-urlencoded").header("Accept", "application/json").field("censor-character", "*").field("content", newPostInputEditText.getText().toString()).asJson();
+
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Gson gson = new Gson();
+        json =
+        outState.putStringArrayList("posts", allPosts);
+    }
+
+    public void initialize() {
+        postsStore = getSharedPreferences("PostsStore", MODE_PRIVATE);
+        postsStoreEditor = postsStore.edit();
+        Gson gson = new Gson();
+        if(postsStore.contains("posts")) {
+            json = gson.toJson(allPosts);
+            postsStoreEditor.putString("posts", json);
+
+            json = postsStore.getString("posts", "");
+            allPosts = gson.fromJson(json, ArrayList<Post.class>);
+        }
+    }
+
+    public Post returnPost(int index) {
+        return allPosts.get(index);
+    }
+
+    public void refreshPostsList() {
+        nonReportedPosts = new ArrayList<Post>();
+        for(int i = 0; i< allPosts.size(); i++) {
+            if(!allPosts.get(i).getReportedFlag()) {
+                nonReportedPosts.add(allPosts.get(i));
+            }
+        }
+    }
+
+    public void checkIfInappropriateInput() {
+        input = newPostInputEditText.getText().toString();
+        int i;
+        for (i = 0; i < sensorWords.size(); i++) {
+            if (input.contains(sensorWords.get(i))) {
+                sensorFlag = true;
+                Toast.makeText(MainActivity.this, "The text you have entered contains inappropriate words/phrases", Toast.LENGTH_LONG).show();
+                break;
+            }
+        }
+        if (i == sensorWords.size()) {
+            sensorFlag = false;
+            Toast.makeText(MainActivity.this, "Entered text is clean!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void newPost() {
+        post = new Post();
+        post.setPostAuthor("DefaultAuthor");
+        post.setPostContent(newPostInputEditText.getText().toString());
+        post.setPostTitle(newPostTitleEditText.getText().toString());
+        newPostInputEditText.setText("");
+        newPostTitleEditText.setText("");
+        allPosts.add(post);
+        databaseReference.child("allPosts").setValue(allPosts);
+        post = new Post();
+        refreshPostsList();
+    }
 }

@@ -50,19 +50,35 @@
         app:layout_constraintVertical_bias="0.581" />
 
     <android.support.v7.widget.AppCompatEditText
-        android:id="@+id/editext_newpost"
+        android:id="@+id/edittext_newpost_content"
         android:layout_width="279dp"
         android:layout_height="117dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:hint="Enter your content here"
+        android:hint="Content of post  here"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.274" />
+
+    <EditText
+        android:id="@+id/edittext_newpost_title"
+        android:layout_width="275dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:hint="Title of post"
+        android:singleLine="false"
+        app:layout_constraintBottom_toTopOf="@+id/editext_newpost_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView_allpost_title"

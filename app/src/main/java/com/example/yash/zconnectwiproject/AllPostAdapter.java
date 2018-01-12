@@ -35,13 +35,14 @@ public class AllPostAdapter extends RecyclerView.Adapter<AllPostAdapter.CustomVi
     public void onBindViewHolder(CustomViewHolder holder, final int position) {
         String author = "-by " + posts.get(position).getPostAuthor();
         holder.author.setText(author);
-        holder.title.setText(posts.get(position).getPostContent());
+        holder.title.setText(posts.get(position).getPostTitle());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent launchViewPost = new Intent(context, ViewPost.class);
                 launchViewPost.putExtra("author", posts.get(position).getPostAuthor());
                 launchViewPost.putExtra("content", posts.get(position).getPostContent());
+                launchViewPost.putExtra("title", posts.get(position).getPostTitle());
                 launchViewPost.putExtra("position", position);
                 context.startActivity(launchViewPost);
             }

@@ -7,15 +7,19 @@ package com.example.yash.zconnectwiproject;
 public class Post {
     String postContent;
     String postAuthor;
+    String postTitle;
+    boolean reportedFlag;
 
     public Post(Post post) {
         this.postAuthor=post.postAuthor;
         this.postContent=post.postContent;
+        this.reportedFlag = post.reportedFlag;
     }
 
     public Post() {
         this.postContent = "";
         this.postAuthor = "";
+        this.reportedFlag = false;
     }
 
     public String getPostContent() {
@@ -26,11 +30,27 @@ public class Post {
         return postAuthor;
     }
 
+    public  boolean getReportedFlag() {
+        return reportedFlag;
+    }
+
+    public  String getPostTitle() {
+        return postTitle;
+    }
+
     public void setPostContent(String postContent) {
         this.postContent = postContent;
     }
 
     public void setPostAuthor(String postAuthor) {
         this.postAuthor = postAuthor;
+    }
+
+    public void setReportedFlag(boolean reportedFlag) {
+        this.reportedFlag = reportedFlag;
+    }
+
+    public  void setPostTitle(String postTitle) {
+        this.postTitle = postTitle;
     }
 }
